@@ -3,10 +3,10 @@ import { prisma } from "@/lib/prisma";
 
 export const runtime = "edge";
 
-export async function GET(_req: Request, { params }: { params: { deckId: string } }) {
-    console.log(_req);
+export async function GET(request: Request, { params }: { params: Promise<{ deckId: string }> }) {
+    console.log(request);
     try {
-        const deckId = params.deckId;
+        const { deckId } = await params;
         const deck = await prisma.deck.findFirst({ where: { id: deckId, isPublished: true } });
 
         const title = deck?.title ?? "なんでも問題集";
