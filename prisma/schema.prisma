@@ -49,8 +49,9 @@ model Choice {
 }
 
 model Challenge {
-  id    String @id @default(cuid())
-  value String @unique @default(uuid())
+  id     String @id @default(cuid())
+  value  String @unique @default(uuid())
+  prefix String @default("000")
 
   deckId    String
   deck      Deck     @relation(fields: [deckId], references: [id], onDelete: Cascade)
