@@ -28,7 +28,7 @@ export function QuizClient({ questions, deckId, title }: QuizClient) {
   const [score, setScore] = useState(0);
 
   if (index >= questions.length) {
-    const text = `私はなんでも問題集の ${title} にて ${questions.length}問中 ${score} 問正解しました\n`;
+    const text = `私はなんでも問題集の ${title} にて ${questions.length}問中 ${score} 問正解しました\n#tanahiro2010 #なんでも問題集 #${title}\n`;
     return (
       <section className="border border-black p-4">
         <h1 className="text-xl">結果</h1>
