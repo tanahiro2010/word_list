@@ -37,14 +37,26 @@ export function QuizClient({ questions, deckId, title }: QuizClient) {
         </p>
 
         <div className="mt-5 flex space-x-5">
-          <label className="flex cursor-pointer items-center gap-2 border border-black p-2">
-            <a href={`https://twitter.com/intent/tweet?url=https://word.tanahiro2010.com/decks/${deckId}&text=${text}`}></a>
-            <svg xmlns="http://www.w3.org/2000/svg" height="1em" viewBox="0 0 512 512">
-              <path d="M389.2 48h70.6L305.6 224.2 487 464H345L233.7 318.6 106.5 464H35.8L200.7 275.5 26.8 48H172.4L272.9 180.9 389.2 48zM364.4 421.8h39.1L151.1 88h-42L364.4 421.8z"></path>
-            </svg>
-            <span>に投稿する</span>
+          <label className="border border-black p-2">
+            <a
+              href={`https://twitter.com/intent/tweet?url=https://word.tanahiro2010.com/decks/${deckId}&text=${text}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex cursor-pointer items-center gap-2"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" height="1em" viewBox="0 0 512 512">
+                <path d="M389.2 48h70.6L305.6 224.2 487 464H345L233.7 318.6 106.5 464H35.8L200.7 275.5 26.8 48H172.4L272.9 180.9 389.2 48zM364.4 421.8h39.1L151.1 88h-42L364.4 421.8z"></path>
+              </svg>
+              <span>に投稿する</span>
+            </a>
           </label>
         </div>
+
+        {score > questions.length / 2 && (
+          <div className="mt-5 flex justify-center">
+            <iframe width="956" height="538" src="https://www.youtube.com/embed/dQw4w9WgXcQ" title="Rick Astley - Never Gonna Give You Up (Official Video) (4K Remaster)" frameBorder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerPolicy="strict-origin-when-cross-origin" allowFullScreen></iframe>
+          </div>
+        )}
       </section>
     );
   }
