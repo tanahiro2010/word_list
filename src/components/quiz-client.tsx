@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 
 type QuizChoice = {
   id: string;
@@ -26,6 +26,33 @@ export function QuizClient({ questions, deckId, title }: QuizClient) {
   const [selectedId, setSelectedId] = useState<string>("");
   const [judged, setJudged] = useState(false);
   const [score, setScore] = useState(0);
+  const completedRef = useRef(false);
+
+  const getChallenge = (async (deckId: string) => {
+    const response = await fetch(`/api/challenges`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        deckId: deckId
+      })
+    });
+    if (!response.ok) {
+      throw new Error("failed to create challenge");
+    }
+    return await response.json();
+  });
+  const onComplete = (async (deckId: string) => {
+    
+  });
+
+  useEffect(() => {
+    if (index >= questions.length && !completedRef.current) {
+      completedRef.current = true;
+      onComplete(deckId);
+    }
+  }, [index, questions.length, score, deckId, title, onComplete]);
 
   if (index >= questions.length) {
     const text = `私はなんでも問題集の ${title} にて ${questions.length}問中 ${score} 問正解しました\n#tanahiro2010 #なんでも問題集 #${title}\n`;
