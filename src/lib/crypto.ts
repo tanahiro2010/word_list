@@ -123,13 +123,7 @@ export function murmurHash3_32(key: string, seed = 0): number {
 	return h1 >>> 0;
 }
 
-export default {
-	djb2,
-	fnv1a32,
-	crc32,
-	murmurHash3_32,
-	toHex32,
-};
+// (default export will be at end after sha256)
 
 // --- SHA-256 実装（純粋JS） ----------------------------------
 function ROTR(n: number, x: number) {
@@ -239,4 +233,13 @@ export function sha256(message: string): string {
 	}
 	return hex;
 }
+
+export default {
+  djb2,
+  fnv1a32,
+  crc32,
+  murmurHash3_32,
+  toHex32,
+  sha256,
+};
 
