@@ -1,8 +1,6 @@
 import { ImageResponse } from "next/og";
 import { prisma } from "@/lib/prisma";
 
-export const runtime = "edge";
-
 export async function GET(request: Request, { params }: { params: Promise<{ deckId: string }> }) {
     console.log(request);
     try {
