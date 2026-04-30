@@ -6,7 +6,7 @@ export function AppHeader() {
     <header className="border-b border-black">
       <div className="mx-auto flex w-full max-w-5xl flex-wrap items-center gap-3 px-4 py-3">
         <Link href="/" className="text-lg font-semibold">
-          WordList
+          なんでも問題集
         </Link>
         <form action="/search" className="ml-auto flex items-center gap-2">
           <input
