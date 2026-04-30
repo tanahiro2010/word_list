@@ -16,7 +16,8 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({ error: "Deck not found" }, { status: 404 });
         }
 
-        const prefix = Math.random().toString(36).substring(2, 5); // Generate a random 3-character prefix
+        // Generate a random hex prefix (0-9a-f) to match sha256 hex output
+        const prefix = Array.from({ length: 5 }).map(() => Math.floor(Math.random() * 16).toString(16)).join("");
         const challenge = await prisma.challenge.create({
             data: {
                 deckId: deck.id,
