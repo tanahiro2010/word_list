@@ -1,5 +1,11 @@
 import { prisma } from "@/lib/prisma";
 import { publishDeckSchema } from "@/lib/validators";
+import {
+  ABUSE_PROTECTION,
+  checkRateLimit,
+  containsBlockedContent,
+  responseTooManyRequests,
+} from "@/lib/abuse-protection";
 
 type RouteContext = {
   params: Promise<{ deckId: string }>;
@@ -7,6 +13,27 @@ type RouteContext = {
 
 export async function POST(request: Request, context: RouteContext) {
   try {
+    const contentLength = Number(request.headers.get("content-length") ?? "0");
+    if (contentLength > ABUSE_PROTECTION.requestSizeLimit.publishDeckBytes) {
+      return Response.json({ error: "リクエストサイズが大きすぎます。" }, { status: 413 });
+    }
+
+    const burstLimit = checkRateLimit({
+      request,
+      ...ABUSE_PROTECTION.rateLimit.publishDeck.burst,
+    });
+    if (!burstLimit.ok) {
+      return responseTooManyRequests(burstLimit.retryAfterSec);
+    }
+
+    const sustainedLimit = checkRateLimit({
+      request,
+      ...ABUSE_PROTECTION.rateLimit.publishDeck.sustained,
+    });
+    if (!sustainedLimit.ok) {
+      return responseTooManyRequests(sustainedLimit.retryAfterSec);
+    }
+
     const { deckId } = await context.params;
     const json = await request.json();
     const parsed = publishDeckSchema.safeParse(json);
@@ -21,6 +48,17 @@ export async function POST(request: Request, context: RouteContext) {
 
     if (!deck) {
       return Response.json({ error: "単語帳が見つかりません。" }, { status: 404 });
+    }
+
+    for (const question of parsed.data.questions) {
+      if (containsBlockedContent(question.prompt)) {
+        return Response.json({ error: "問題文に使用できない文字列が含まれています。" }, { status: 400 });
+      }
+      for (const choice of question.choices) {
+        if (containsBlockedContent(choice.text)) {
+          return Response.json({ error: "選択肢に使用できない文字列が含まれています。" }, { status: 400 });
+        }
+      }
     }
 
     await prisma.$transaction(async (tx) => {
