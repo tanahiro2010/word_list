@@ -14,7 +14,13 @@ type QuizQuestion = {
   choices: QuizChoice[];
 };
 
-export function QuizClient({ questions }: { questions: QuizQuestion[] }) {
+type QuizClient = {
+  questions: QuizQuestion[];
+  deckId: string;
+  title: string;
+}
+
+export function QuizClient({ questions, deckId, title }: QuizClient) {
   const cardRef = useRef<HTMLElement | null>(null);
   const [index, setIndex] = useState(0);
   const [selectedId, setSelectedId] = useState<string>("");
@@ -22,12 +28,23 @@ export function QuizClient({ questions }: { questions: QuizQuestion[] }) {
   const [score, setScore] = useState(0);
 
   if (index >= questions.length) {
+    const text = `私はなんでも問題集の ${title} にて ${questions.length}問中 ${score} 問正解しました\n`;
     return (
       <section className="border border-black p-4">
         <h1 className="text-xl">結果</h1>
         <p className="mt-2">
           {score} / {questions.length} 問正解
         </p>
+
+        <div className="mt-5 flex space-x-5">
+          <label className="flex cursor-pointer items-center gap-2 border border-black p-2">
+            <a href={`https://twitter.com/intent/tweet?url=https://word.tanahiro2010.com/decks/${deckId}&text=${text}`}></a>
+            <svg xmlns="http://www.w3.org/2000/svg" height="1em" viewBox="0 0 512 512">
+              <path d="M389.2 48h70.6L305.6 224.2 487 464H345L233.7 318.6 106.5 464H35.8L200.7 275.5 26.8 48H172.4L272.9 180.9 389.2 48zM364.4 421.8h39.1L151.1 88h-42L364.4 421.8z"></path>
+            </svg>
+            <span>に投稿する</span>
+          </label>
+        </div>
       </section>
     );
   }

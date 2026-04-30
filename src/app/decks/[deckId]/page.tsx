@@ -31,7 +31,7 @@ export default async function DeckPage({ params }: DeckPageProps) {
   return (
     <section>
       <h1 className="mb-4 text-2xl">{deck.title}</h1>
-      <QuizClient questions={deck.questions} />
+      <QuizClient questions={deck.questions} deckId={deckId} title={deck.title} />
     </section>
   );
 }
