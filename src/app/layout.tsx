@@ -29,7 +29,10 @@ export const metadata: Metadata = {
   ],
   authors: [{ name: "tanahiro2010", url: "https://word.tanahiro2010.com" }],
   openGraph: {
-    title: "なんでも問題集",
+    title: {
+      default: "なんでも問題集",
+      template: "%s | なんでも問題集"
+    },
     description: "みんなで作る単語帳・問題集。無料・匿名で単語や問題を作成、共有できます。",
     url: "https://word.tanahiro2010.com",
     siteName: "なんでも問題集",
@@ -46,7 +49,10 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "なんでも問題集",
+    title: {
+      default: "なんでも問題集",
+      template: "%s | なんでも問題集"
+    },
     description: "みんなで作る単語帳・問題集。無料・匿名で単語や問題を作成、共有できます。",
     site: "@tanahiro2010",
   },
