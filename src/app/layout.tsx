@@ -22,12 +22,16 @@ export const metadata: Metadata = {
   },
   description: "みんなで作る単語帳・問題集。無料・匿名で単語や問題を作成、共有できます。",
   keywords: [
+    "なんでも",
     "単語帳",
     "問題集",
     "フラッシュカード",
     "語彙学習",
     "暗記",
     "学習",
+    "tanahiro2010",
+    "田中博悠",
+    "個人開発"
   ],
   authors: [{ name: "tanahiro2010", url: "https://nandemo.tanahiro2010.com" }],
   openGraph: {
