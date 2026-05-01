@@ -1,13 +1,30 @@
+import { NextRequest } from "next/server";
 import { ImageResponse } from "next/og";
 import { prisma } from "@/lib/prisma";
 
-export async function GET(request: Request, { params }: { params: Promise<{ deckId: string }> }) {
-    console.log(request);
+async function arrayBufferToBase64(buffer: ArrayBuffer) {
+    if (typeof Buffer !== "undefined") return Buffer.from(buffer).toString("base64");
+    let binary = "";
+    const bytes = new Uint8Array(buffer);
+    const chunk = 0x8000;
+    for (let i = 0; i < bytes.length; i += chunk) {
+        binary += String.fromCharCode(...bytes.subarray(i, i + chunk));
+    }
+    return globalThis.btoa(binary);
+}
+
+export async function GET(req: NextRequest, { params }: { params: Promise<{ deckId: string }> }) {
     try {
         const { deckId } = await params;
         const deck = await prisma.deck.findFirst({ where: { id: deckId, isPublished: true } });
-
         const title = deck?.title ?? "なんでも問題集";
+
+        const fontResp = await fetch(new URL("/craftmincho.otf", req.url));
+        const fontData = await fontResp.arrayBuffer();
+
+        const bgResp = await fetch(new URL("/og-image-bg.png", req.url));
+        const bgData = await bgResp.arrayBuffer();
+        const bgBase64 = await arrayBufferToBase64(bgData);
 
         return new ImageResponse(
             (
@@ -16,20 +33,37 @@ export async function GET(request: Request, { params }: { params: Promise<{ deck
                         display: "flex",
                         width: "100%",
                         height: "100%",
-                        background: "linear-gradient(135deg,#fff 0%, #e6ffed 100%)",
                         alignItems: "center",
                         justifyContent: "center",
                         flexDirection: "column",
-                        fontFamily: 'Noto Sans JP, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial',
+                        backgroundImage: `url('data:image/png;base64,${bgBase64}')`,
+                        backgroundSize: "cover",
+                        backgroundPosition: "center",
+                        textAlign: "center",
                     }}
                 >
-                    <div style={{ fontSize: 36, color: "#0f172a", fontWeight: 700, padding: "0 40px", textAlign: "center" }}>{title}</div>
-                    <div style={{ marginTop: 20, fontSize: 20, color: "#045e54" }}>なんでも問題集 — みんなで作る単語帳</div>
+                    <div style={{
+                        fontFamily: 'CraftMincho, Noto Sans JP, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial',
+                        fontSize: 64,
+                        color: "#0f172a",
+                        fontWeight: 700,
+                        padding: "0 60px",
+                        lineHeight: 1.1,
+                        maxWidth: 1000,
+                    }}>{title}</div>
                 </div>
             ),
             {
                 width: 1200,
                 height: 630,
+                fonts: [
+                    {
+                        name: "CraftMincho",
+                        data: fontData,
+                        style: "normal",
+                        weight: 400,
+                    },
+                ],
             },
         );
     } catch (err) {
