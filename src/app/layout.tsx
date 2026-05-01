@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { GoogleAnalytics } from "@next/third-parties/google";
 import { Geist, Geist_Mono } from "next/font/google";
 import { AppHeader } from "@/components/app-header";
+import Head from "next/head";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -69,8 +70,7 @@ export default function RootLayout({
       lang="ja"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body className="min-h-full bg-white text-black">
-        {/* JSON-LD: WebSite + WebPage（基本） */}
+      <Head>
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
@@ -97,6 +97,9 @@ export default function RootLayout({
             }),
           }}
         />
+      </Head>
+      <body className="min-h-full bg-white text-black">
+        {/* JSON-LD: WebSite + WebPage（基本） */}
         <AppHeader />
         <main className="mx-auto w-full max-w-5xl flex-1 px-4 py-6">{children}</main>
 
