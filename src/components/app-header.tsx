@@ -15,7 +15,7 @@ export function AppHeader() {
             placeholder="単語帳タイトルを検索"
             className="w-60 border border-black px-2 py-2 text-sm"
           />
-          <button type="submit" className="border border-black px-3 py-2 text-sm">
+          <button type="submit" className="border border-black px-3 py-2 text-sm hidden md:block">
             検索
           </button>
         </form>
