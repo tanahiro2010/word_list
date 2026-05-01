@@ -30,7 +30,7 @@ export async function generateMetadata({ params }: DeckPageProps): Promise<Metad
     title: "404 問題が見つかりません",
     description: "問題がみつかりません"
   }
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://word.tanahiro2010.com";
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://nandemo.tanahiro2010.com";
 
   return {
     title: deck.title,

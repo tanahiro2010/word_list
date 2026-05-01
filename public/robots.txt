@@ -4,4 +4,4 @@ Disallow:
 # Crawl-delay can be adjusted if needed by crawlers that support it
 # Crawl-delay: 10
 
-Sitemap: https://word.tanahiro2010.com/sitemap.xml
+Sitemap: https://nandemo.tanahiro2010.com/sitemap.xml

@@ -2,7 +2,7 @@ import { MetadataRoute } from "next";
 import { prisma } from "@/lib/prisma";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://word.tanahiro2010.com";
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://nandemo.tanahiro2010.com";
 
   const decks = await prisma.deck.findMany({
     where: { isPublished: true },

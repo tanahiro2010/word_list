@@ -28,18 +28,18 @@ export const metadata: Metadata = {
     "暗記",
     "学習",
   ],
-  authors: [{ name: "tanahiro2010", url: "https://word.tanahiro2010.com" }],
+  authors: [{ name: "tanahiro2010", url: "https://nandemo.tanahiro2010.com" }],
   openGraph: {
     title: {
       default: "なんでも問題集",
       template: "%s | なんでも問題集"
     },
     description: "みんなで作る単語帳・問題集。無料・匿名で単語や問題を作成、共有できます。",
-    url: "https://word.tanahiro2010.com",
+    url: "https://nandemo.tanahiro2010.com",
     siteName: "なんでも問題集",
     images: [
       {
-        url: "https://word.tanahiro2010.com/og-image.png",
+        url: "https://nandemo.tanahiro2010.com/og-image.png",
         width: 1200,
         height: 630,
         alt: "なんでも問題集",
@@ -79,18 +79,18 @@ export default function RootLayout({
               "@graph": [
                 {
                   "@type": "WebSite",
-                  "@id": "https://word.tanahiro2010.com/#website",
-                  "url": "https://word.tanahiro2010.com",
+                  "@id": "https://nandemo.tanahiro2010.com/#website",
+                  "url": "https://nandemo.tanahiro2010.com",
                   "name": "なんでも問題集",
                   "description": "みんなで作る単語帳・問題集。無料・匿名で単語や問題を作成、共有できます。",
                   "inLanguage": "ja",
                 },
                 {
                   "@type": "WebPage",
-                  "@id": "https://word.tanahiro2010.com/#webpage",
-                  "url": "https://word.tanahiro2010.com",
+                  "@id": "https://nandemo.tanahiro2010.com/#webpage",
+                  "url": "https://nandemo.tanahiro2010.com",
                   "name": "なんでも問題集",
-                  "isPartOf": { "@id": "https://word.tanahiro2010.com/#website" },
+                  "isPartOf": { "@id": "https://nandemo.tanahiro2010.com/#website" },
                   "inLanguage": "ja",
                 },
               ],

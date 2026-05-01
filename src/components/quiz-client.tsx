@@ -137,7 +137,7 @@ export function QuizClient({ questions, deckId, title }: QuizClient) {
         <div className="mt-5 flex space-x-5">
           <label className="border border-black p-2">
             <a
-              href={`https://twitter.com/intent/tweet?url=https://word.tanahiro2010.com/decks/${deckId}&text=${encodeURIComponent(text)}`}
+              href={`https://twitter.com/intent/tweet?url=https://nandemo.tanahiro2010.com/decks/${deckId}&text=${encodeURIComponent(text)}`}
               target="_blank"
               rel="noopener noreferrer"
               className="flex cursor-pointer items-center gap-2"
