@@ -157,7 +157,7 @@ const K256 = new Uint32Array([
 	0x748f82ee,0x78a5636f,0x84c87814,0x8cc70208,0x90befffa,0xa4506ceb,0xbef9a3f7,0xc67178f2,
 ]);
 
-export function sha256(message: string): string {
+function sha256Pure(message: string): string {
 	const msg = toBytes(message);
 	const bitLen = msg.length * 8;
 
@@ -232,6 +232,20 @@ export function sha256(message: string): string {
 		hex += H[i].toString(16).padStart(8, "0");
 	}
 	return hex;
+}
+
+export async function sha256(message: string): Promise<string> {
+	// prefer Web Crypto if available (works in browsers and modern Node's WebCrypto)
+	const subtle = (globalThis as any).crypto?.subtle;
+	if (subtle && typeof subtle.digest === "function") {
+		const enc = new TextEncoder();
+		const data = enc.encode(message);
+		const hashBuffer = await subtle.digest("SHA-256", data);
+		const hashArray = Array.from(new Uint8Array(hashBuffer));
+		return hashArray.map((b) => b.toString(16).padStart(2, "0")).join("");
+	}
+	// fallback to pure-js implementation
+	return Promise.resolve(sha256Pure(message));
 }
 
 export default {

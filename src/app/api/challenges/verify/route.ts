@@ -19,7 +19,7 @@ export async function POST(req: Request) {
         return NextResponse.json({ error: "Challenge expired" }, { status: 400 });
     }
 
-    const expectedHash = sha256(token + nonce);
+    const expectedHash = await sha256(`${token}.${nonce}`);
     if (!expectedHash.startsWith(challenge.prefix)) {
         return NextResponse.json({ error: "Invalid nonce" }, { status: 400 });
     }
