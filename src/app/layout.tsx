@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
+import { GoogleAnalytics } from "@next/third-parties/google";
 import { Geist, Geist_Mono } from "next/font/google";
-import "./globals.css";
 import { AppHeader } from "@/components/app-header";
+import "./globals.css";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -98,6 +99,10 @@ export default function RootLayout({
         />
         <AppHeader />
         <main className="mx-auto w-full max-w-5xl flex-1 px-4 py-6">{children}</main>
+
+        {process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS_ID && (
+          <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS_ID} />
+        )}
       </body>
     </html>
   );
