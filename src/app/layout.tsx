@@ -14,7 +14,10 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "なんでも問題集",
+  title: {
+    default: "なんでも問題集",
+    template: "%s | なんでも問題集"
+  },
   description: "みんなで作る単語帳・問題集。無料・匿名で単語や問題を作成、共有できます。",
   keywords: [
     "単語帳",
