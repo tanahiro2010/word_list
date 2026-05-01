@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState, useEffect } from "react";
+import { useRef, useState, useEffect, useCallback } from "react";
 
 type QuizChoice = {
   id: string;
@@ -20,6 +20,13 @@ type QuizClient = {
   title: string;
 }
 
+type Challenge = {
+  token: string;
+  prefix: string;
+}
+
+// Worker-based PoW is spawned dynamically in handleComplete
+
 export function QuizClient({ questions, deckId, title }: QuizClient) {
   const cardRef = useRef<HTMLElement | null>(null);
   const [index, setIndex] = useState(0);
@@ -28,7 +35,7 @@ export function QuizClient({ questions, deckId, title }: QuizClient) {
   const [score, setScore] = useState(0);
   const completedRef = useRef(false);
 
-  const getChallenge = (async (deckId: string) => {
+  const getChallenge = useCallback(async (deckId: string): Promise<Challenge> => {
     const response = await fetch(`/api/challenges`, {
       method: "POST",
       headers: {
@@ -42,17 +49,82 @@ export function QuizClient({ questions, deckId, title }: QuizClient) {
       throw new Error("failed to create challenge");
     }
     return await response.json();
-  });
-  const onComplete = (async (deckId: string) => {
-    
-  });
+  }, [deckId]);
+
+  const handleComplete = useCallback(async (deckId: string) => {
+    alert("test")
+    try {
+      const challenge = await getChallenge(deckId);
+
+      // worker script: uses Web Crypto API to compute SHA-256 and post when found
+      const workerCode = `
+        self.onmessage = async (e) => {
+          const { start, token, prefix } = e.data;
+          const enc = new TextEncoder();
+          let nonce = start;
+          while (true) {
+            const msg = token + '.' + nonce;
+            const digest = await crypto.subtle.digest('SHA-256', enc.encode(msg));
+            const arr = Array.from(new Uint8Array(digest));
+            const hex = arr.map(b => b.toString(16).padStart(2, '0')).join('');
+            console.log("generated hash:", hex, "prefix:", prefix);
+            if (hex.startsWith(prefix)) {
+              self.postMessage({ signal: 'finish', from: start % 2 === 0 ? 'even' : 'odd', nonce });
+              return;
+            }
+            nonce += 2;
+          }
+        };
+      `;
+
+      const blob = new Blob([workerCode], { type: 'application/javascript' });
+      const url = URL.createObjectURL(blob);
+      const wEven = new Worker(url);
+      const wOdd = new Worker(url);
+
+      const cleanup = () => {
+        try { wEven.terminate(); } catch {}
+        try { wOdd.terminate(); } catch {}
+        try { URL.revokeObjectURL(url); } catch {}
+      };
+
+      await new Promise<void>((resolve) => {
+        const handler = async (e: MessageEvent) => {
+          const { signal, nonce } = e.data ?? {};
+          if (signal === 'finish') {
+            cleanup();
+            try {
+              await fetch('/api/challenges/verify', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ token: challenge.token, nonce })
+              });
+            } catch (err) {
+              console.error('verify error', err);
+            }
+            resolve();
+          }
+        };
+
+        wEven.onmessage = handler;
+        wOdd.onmessage = handler;
+
+        wEven.postMessage({ start: 0, token: challenge.token, prefix: challenge.prefix });
+        wOdd.postMessage({ start: 1, token: challenge.token, prefix: challenge.prefix });
+      });
+
+    } catch (e) {
+      console.error(e);
+      return;
+    }
+  }, [deckId]);
 
   useEffect(() => {
     if (index >= questions.length && !completedRef.current) {
       completedRef.current = true;
-      onComplete(deckId);
+      handleComplete(deckId);
     }
-  }, [index, questions.length, score, deckId, title, onComplete]);
+  }, [index, questions.length, score, deckId, title, handleComplete]);
 
   if (index >= questions.length) {
     const text = `私はなんでも問題集の ${title} にて ${questions.length}問中 ${score} 問正解しました\n#tanahiro2010 #なんでも問題集 #${title}\n`;
