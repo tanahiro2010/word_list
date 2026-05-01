@@ -52,7 +52,6 @@ export function QuizClient({ questions, deckId, title }: QuizClient) {
   }, [deckId]);
 
   const handleComplete = useCallback(async (deckId: string) => {
-    alert("test")
     try {
       const challenge = await getChallenge(deckId);
 
