@@ -38,7 +38,7 @@ export async function POST(request: Request, context: RouteContext) {
     const json = await request.json();
     const parsed = publishDeckSchema.safeParse(json);
     if (!parsed.success) {
-      return Response.json({ error: "問題データが不正です。" }, { status: 400 });
+      throw new Error("Invalid request body: " + JSON.stringify(parsed.error.format()));
     }
 
     const deck = await prisma.deck.findUnique({
@@ -104,7 +104,8 @@ export async function POST(request: Request, context: RouteContext) {
     });
 
     return Response.json({ ok: true });
-  } catch {
-    return Response.json({ error: "公開に失敗しました。" }, { status: 500 });
+  } catch (error) {
+    console.error("Failed to publish deck:", error);
+    return Response.json({ error: "問題データが不正です。" }, { status: 400 });
   }
 }
