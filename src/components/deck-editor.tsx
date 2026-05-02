@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 
 type EditorChoice = {
@@ -27,13 +27,13 @@ export function DeckEditor({ deckId }: { deckId: string }) {
   const [error, setError] = useState("");
   const [saving, setSaving] = useState(false);
 
-  const updatePrompt = useCallback((questionIndex: number, prompt: string) => {
+  const updatePrompt = (questionIndex: number, prompt: string) => {
     setQuestions((prev) =>
       prev.map((item, index) => (index === questionIndex ? { ...item, prompt } : item)),
     );
-  }, []);
+  };
 
-  const updateChoiceText = useCallback((questionIndex: number, choiceIndex: number, text: string) => {
+  const updateChoiceText = (questionIndex: number, choiceIndex: number, text: string) => {
     setQuestions((prev) =>
       prev.map((item, qIndex) =>
         qIndex === questionIndex
@@ -46,9 +46,9 @@ export function DeckEditor({ deckId }: { deckId: string }) {
           : item,
       ),
     );
-  }, []);
+  };
 
-  const setCorrectChoice = useCallback((questionIndex: number, choiceIndex: number) => {
+  const setCorrectChoice = (questionIndex: number, choiceIndex: number) => {
     setQuestions((prev) =>
       prev.map((item, qIndex) =>
         qIndex === questionIndex
@@ -62,9 +62,9 @@ export function DeckEditor({ deckId }: { deckId: string }) {
           : item,
       ),
     );
-  }, []);
+  };
 
-  const addChoice = useCallback((questionIndex: number) => {
+  const addChoice = (questionIndex: number) => {
     setQuestions((prev) =>
       prev.map((item, index) =>
         index === questionIndex && item.choices.length < 6
@@ -72,13 +72,13 @@ export function DeckEditor({ deckId }: { deckId: string }) {
           : item,
       ),
     );
-  }, []);
+  };
 
-  const addQuestion = useCallback(() => {
+  const addQuestion = () => {
     setQuestions((prev) => [...prev, createQuestion()]);
-  }, []);
+  };
 
-  const publish = useCallback(async () => {
+  const publish = async () => {
     setError("");
     setSaving(true);
     try {
@@ -98,7 +98,7 @@ export function DeckEditor({ deckId }: { deckId: string }) {
     } finally {
       setSaving(false);
     }
-  }, []);
+  };
 
   return (
     <section className="space-y-4">
