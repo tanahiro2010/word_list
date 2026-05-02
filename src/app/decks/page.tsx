@@ -44,7 +44,7 @@ export default async function Decks({ searchParams }: DecksPageProps) {
                 )}
             </section>
 
-            <div className={`mt-10 grid gap-${isFirst || !isFinal ? "2" : "1"} sm:grid-cols-${isFirst || !isFinal ? "2" : "1"}`}>
+            <div className={`mt-10 grid gap-${isFirst || isFinal ? "2" : "1"} sm:grid-cols-${isFirst && !isFinal ? "2" : "1"}`}>
                 {isFirst && (
                     <Link href={`/decks?page=${pageNum - 1}`} className="border border-black p-4">
                         前のページへ
