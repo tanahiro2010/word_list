@@ -29,7 +29,7 @@ export default async function DeckListPage({ searchParams }: DeckListPageProps) 
 
     return (
         <main className="space-y-5">
-            <section id="new">
+            <section id="new" className="mb-10">
                 <h1 className="mb-4 text-2xl">みんなの単語帳</h1>
                 {decks.length === 0 ? (
                     <p>まだ公開された単語帳はありません。</p>
@@ -45,19 +45,19 @@ export default async function DeckListPage({ searchParams }: DeckListPageProps) 
                 )}
             </section>
 
-            <div className={"mt-10 grid" + hasPreviousPage && hasNextPage ? "gap-2 sm:grid-cols-2" : "gap-1"}>
+            <section className={"w-full mt-10 grid" + hasPreviousPage && hasNextPage ? "gap-2 sm:grid-cols-2" : "gap-1"}>
                 {hasPreviousPage && (
-                    <Link href={`/decks?page=${currentPage - 1}`} className="border border-black p-4">
+                    <Link href={`/decks?page=${currentPage - 1}`} className="border border-black p-4 w-full">
                         前のページへ
                     </Link>
                 )}
 
                 {hasNextPage && (
-                    <Link href={`/decks?page=${currentPage + 1}`} className="border border-black p-4 text-right">
+                    <Link href={`/decks?page=${currentPage + 1}`} className="border border-black p-4 text-right w-full">
                         次のページへ
                     </Link>
                 )}
-            </div>
+            </section>
 
         </main>
 
