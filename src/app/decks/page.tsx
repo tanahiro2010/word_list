@@ -12,7 +12,6 @@ export default async function Decks({ searchParams }: DecksPageProps) {
     const parsedPage = Number(page);
     const pageNum = Number.isFinite(parsedPage) && parsedPage > 0 ? parsedPage : 0;
     const isFirst = pageNum > 0;
-
     const decks = await prisma.deck.findMany({
         where: { isPublished: true },
         orderBy: { publishedAt: "desc" },
@@ -24,6 +23,7 @@ export default async function Decks({ searchParams }: DecksPageProps) {
         take: 8,
         skip: pageNum * 8
     });
+    const isFinal = decks.length === 0;
 
     return (
         <main className="space-y-5">
@@ -43,16 +43,18 @@ export default async function Decks({ searchParams }: DecksPageProps) {
                 )}
             </section>
 
-            <div className={`mt-10 grid gap-${isFirst ? "2" : "1"} sm:grid-cols-${isFirst ? "2" : "1"}`}>
+            <div className={`mt-10 grid gap-${isFirst || !isFinal ? "2" : "1"} sm:grid-cols-${isFirst || !isFinal ? "2" : "1"}`}>
                 {isFirst && (
                     <Link href={`/decks?page=${pageNum - 1}`} className="border border-black p-4">
                         前のページへ
                     </Link>
                 )}
 
-                <Link href={`/decks?page=${pageNum + 1}`} className="border border-black p-4 text-right">
-                    次のページへ
-                </Link>
+                {!isFinal && (
+                    <Link href={`/decks?page=${pageNum + 1}`} className="border border-black p-4 text-right">
+                        次のページへ
+                    </Link>
+                )}
             </div>
 
         </main>
