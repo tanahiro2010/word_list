@@ -2,6 +2,7 @@ import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 
 export const dynamic = "force-dynamic";
+const PAGE_DECK_COUNT = 10;
 
 type DecksPageProps = {
     searchParams: Promise<{ page?: string; }>;
@@ -20,8 +21,8 @@ export default async function Decks({ searchParams }: DecksPageProps) {
                 select: { questions: true }
             }
         },
-        take: 8,
-        skip: pageNum * 8
+        take: PAGE_DECK_COUNT,
+        skip: pageNum * PAGE_DECK_COUNT
     });
     const isFinal = decks.length === 0;
 
