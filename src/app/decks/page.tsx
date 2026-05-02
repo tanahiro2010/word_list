@@ -2,18 +2,18 @@ import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 
 export const dynamic = "force-dynamic";
-const PAGE_DECK_COUNT = 10;
+const DECKS_PER_PAGE = 10;
 
-type DecksPageProps = {
-    searchParams: Promise<{ page?: string; }>;
+type DeckListPageProps = {
+    searchParams: Promise<{ page?: string }>;
 }
 
-export default async function Decks({ searchParams }: DecksPageProps) {
-    const { page } = await searchParams;
-    const parsedPage = Number(page);
-    const pageNum = Number.isFinite(parsedPage) && parsedPage > 0 ? parsedPage : 0;
-    const isFirst = pageNum > 0;
-    const decks = await prisma.deck.findMany({
+export default async function DeckListPage({ searchParams }: DeckListPageProps) {
+    const params = await searchParams;
+    const rawPage = Number(params.page);
+    const currentPage = Number.isFinite(rawPage) && rawPage > 0 ? rawPage : 0;
+    const hasPreviousPage = currentPage > 0;
+    const deckRows = await prisma.deck.findMany({
         where: { isPublished: true },
         orderBy: { publishedAt: "desc" },
         include: {
@@ -21,10 +21,11 @@ export default async function Decks({ searchParams }: DecksPageProps) {
                 select: { questions: true }
             }
         },
-        take: PAGE_DECK_COUNT,
-        skip: pageNum * PAGE_DECK_COUNT
+        take: DECKS_PER_PAGE + 1,
+        skip: currentPage * DECKS_PER_PAGE
     });
-    const isFinal = decks.length === 0;
+    const hasNextPage = deckRows.length > DECKS_PER_PAGE;
+    const decks = hasNextPage ? deckRows.slice(0, DECKS_PER_PAGE) : deckRows;
 
     return (
         <main className="space-y-5">
@@ -44,15 +45,15 @@ export default async function Decks({ searchParams }: DecksPageProps) {
                 )}
             </section>
 
-            <div className={`mt-10 grid gap-${isFirst || isFinal ? "2" : "1"} sm:grid-cols-${isFirst && !isFinal ? "2" : "1"}`}>
-                {isFirst && (
-                    <Link href={`/decks?page=${pageNum - 1}`} className="border border-black p-4">
+            <div className={"mt-10 grid" + hasPreviousPage && hasNextPage ? "gap-2 sm:grid-cols-2" : "gap-1"}>
+                {hasPreviousPage && (
+                    <Link href={`/decks?page=${currentPage - 1}`} className="border border-black p-4">
                         前のページへ
                     </Link>
                 )}
 
-                {!isFinal && (
-                    <Link href={`/decks?page=${pageNum + 1}`} className="border border-black p-4 text-right">
+                {hasNextPage && (
+                    <Link href={`/decks?page=${currentPage + 1}`} className="border border-black p-4 text-right">
                         次のページへ
                     </Link>
                 )}
