@@ -25,14 +25,17 @@ type Challenge = {
   prefix: string;
 }
 
-// Worker-based PoW is spawned dynamically in handleComplete
-
 export function QuizClient({ questions, deckId, title }: QuizClient) {
   const cardRef = useRef<HTMLElement | null>(null);
   const [index, setIndex] = useState(0);
   const [selectedId, setSelectedId] = useState<string>("");
   const [judged, setJudged] = useState(false);
   const [score, setScore] = useState(0);
+  const challengeRef = useRef<Challenge | null>(null);
+  const solvedNonceRef = useRef<string | null>(null);
+  const solvePromiseRef = useRef<Promise<string> | null>(null);
+  const solveResolveRef = useRef<((nonce: string) => void) | null>(null);
+  const verifyRequestedRef = useRef(false);
   const completedRef = useRef(false);
 
   const getChallenge = useCallback(async (deckId: string): Promise<Challenge> => {
@@ -51,9 +54,12 @@ export function QuizClient({ questions, deckId, title }: QuizClient) {
     return await response.json();
   }, [deckId]);
 
-  const handleComplete = useCallback(async (deckId: string) => {
+  const startPow = useCallback(async (challenge: Challenge) => {
     try {
-      const challenge = await getChallenge(deckId);
+      solvedNonceRef.current = null;
+      solvePromiseRef.current = new Promise<string>((resolve) => {
+        solveResolveRef.current = resolve;
+      });
 
       // worker script: uses Web Crypto API to compute SHA-256 and post when found
       const workerCode = `
@@ -91,16 +97,10 @@ export function QuizClient({ questions, deckId, title }: QuizClient) {
         const handler = async (e: MessageEvent) => {
           const { signal, nonce } = e.data ?? {};
           if (signal === 'finish') {
+            solvedNonceRef.current = String(nonce);
+            solveResolveRef.current?.(String(nonce));
             cleanup();
-            try {
-              await fetch('/api/challenges/verify', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ token: challenge.token, nonce })
-              });
-            } catch (err) {
-              console.error('verify error', err);
-            }
+            void maybeSendChallengeResult();
             resolve();
           }
         };
@@ -114,16 +114,66 @@ export function QuizClient({ questions, deckId, title }: QuizClient) {
 
     } catch (e) {
       console.error(e);
+    }
+  }, []);
+
+  const maybeSendChallengeResult = useCallback(async () => {
+    if (!verifyRequestedRef.current) {
       return;
     }
-  }, [deckId]);
+
+    const challenge = challengeRef.current;
+    const nonce = solvedNonceRef.current;
+    if (!challenge || !nonce) {
+      return;
+    }
+
+    verifyRequestedRef.current = false;
+
+    try {
+      await fetch('/api/challenges/verify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token: challenge.token, nonce })
+      });
+    } catch (err) {
+      console.error('verify error', err);
+    }
+  }, []);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    const init = async () => {
+      try {
+        const challenge = await getChallenge(deckId);
+        if (cancelled) {
+          return;
+        }
+        challengeRef.current = challenge;
+        void startPow(challenge);
+        void maybeSendChallengeResult();
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
+    void init();
+
+    return () => {
+      cancelled = true;
+      solveResolveRef.current = null;
+      solvePromiseRef.current = null;
+    };
+  }, [deckId, getChallenge, maybeSendChallengeResult, startPow]);
 
   useEffect(() => {
     if (index >= questions.length && !completedRef.current) {
       completedRef.current = true;
-      handleComplete(deckId);
+      verifyRequestedRef.current = true;
+      void maybeSendChallengeResult();
     }
-  }, [index, questions.length, score, deckId, title, handleComplete]);
+  }, [index, questions.length, score, deckId, title, maybeSendChallengeResult]);
 
   if (index >= questions.length) {
     const text = `私はなんでも問題集の ${title} にて ${questions.length}問中 ${score} 問正解しました\n#tanahiro2010 #なんでも問題集 #${title}\n`;
