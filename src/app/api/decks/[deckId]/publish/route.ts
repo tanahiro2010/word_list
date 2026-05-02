@@ -36,6 +36,7 @@ export async function POST(request: Request, context: RouteContext) {
 
     const { deckId } = await context.params;
     const json = await request.json();
+    console.log("Received publish request for deckId:", deckId, "with body:", json);
     const parsed = publishDeckSchema.safeParse(json);
     if (!parsed.success) {
       throw new Error("Invalid request body: " + JSON.stringify(parsed.error.format()));
