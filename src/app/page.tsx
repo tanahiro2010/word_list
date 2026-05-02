@@ -4,32 +4,71 @@ import { prisma } from "@/lib/prisma";
 export const dynamic = "force-dynamic";
 
 export default async function Home() {
-  const decks = await prisma.deck.findMany({
-    where: { isPublished: true },
-    orderBy: { publishedAt: "desc" },
-    include: {
-      _count: {
-        select: { questions: true },
+  const [newDecks, rankingDeck] = await prisma.$transaction([
+    prisma.deck.findMany({
+      where: { isPublished: true },
+      orderBy: { publishedAt: "desc" },
+      include: {
+        _count: {
+          select: { questions: true },
+        },
       },
-    },
-    take: 30,
-  });
+      take: 8,
+    }),
+    prisma.deck.findMany({
+      where: { isPublished: true },
+      orderBy: { solvedCount: "desc" },
+      include: {
+        _count: {
+          select: { questions: true }
+        }
+      },
+      take: 8
+    })]);
 
   return (
-    <section>
-      <h1 className="mb-4 text-2xl">みんなの単語帳</h1>
-      {decks.length === 0 ? (
-        <p>まだ公開された単語帳はありません。</p>
-      ) : (
-        <div className="grid gap-3 sm:grid-cols-2">
-          {decks.map((deck) => (
-            <Link key={deck.id} href={`/decks/${deck.id}`} className="border border-black p-4">
-              <h2 className="text-lg">{deck.title}</h2>
-              <p className="mt-2 text-sm">問題数: {deck._count.questions}</p>
-            </Link>
-          ))}
+    <main className="space-y-5">
+      <section id="new">
+        <h1 className="mb-4 text-2xl">新着単語帳</h1>
+        {newDecks.length === 0 ? (
+          <p>まだ公開された単語帳はありません。</p>
+        ) : (
+          <div className="grid gap-3 sm:grid-cols-2">
+            {newDecks.map((deck) => (
+              <Link key={deck.id} href={`/decks/${deck.id}`} className="border border-black p-4">
+                <h2 className="text-lg">{deck.title}</h2>
+                <p className="mt-2 text-sm">問題数: {deck._count.questions}</p>
+              </Link>
+            ))}
+          </div>
+        )}
+      </section>
+
+      <section id="ranking">
+        <h1 className="mb-4 text-2xl">解かれた数ランキング</h1>
+        {newDecks.length === 0 ? (
+          <p>まだ公開された単語帳はありません。</p>
+        ) : (
+          <div className="grid gap-3 sm:grid-cols-2">
+            {rankingDeck.map((deck) => (
+              <Link key={deck.id} href={`/decks/${deck.id}`} className="border border-black p-4">
+                <h2 className="text-lg">{deck.title}</h2>
+                <p className="mt-2 text-sm">問題数: {deck._count.questions}</p>
+              </Link>
+            ))}
+          </div>
+        )}
+      </section>
+
+      <section className="mt-10">
+        <div className="grid gap-1">
+          <Link href={`/decks`} className="border border-black p-4 w-full">
+            すべての単語帳を見る
+          </Link>
         </div>
-      )}
-    </section>
+
+      </section>
+    </main>
+
   );
 }
