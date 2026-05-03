@@ -74,8 +74,23 @@ export function DeckEditor({ deckId }: { deckId: string }) {
     );
   };
 
+  const removeChoice = (questionIndex: number, choiceIndex: number) => {
+    setQuestions((prev) =>
+      prev.map((item, qIndex) => {
+        if (qIndex !== questionIndex) return item;
+        // keep minimum 2 choices
+        if (item.choices.length <= 2) return item;
+        return { ...item, choices: item.choices.filter((_, idx) => idx !== choiceIndex) };
+      }),
+    );
+  };
+
   const addQuestion = () => {
     setQuestions((prev) => [...prev, createQuestion()]);
+  };
+
+  const removeQuestion = (questionIndex: number) => {
+    setQuestions((prev) => (prev.length <= 1 ? prev : prev.filter((_, idx) => idx !== questionIndex)));
   };
 
   const publish = async () => {
@@ -115,35 +130,57 @@ export function DeckEditor({ deckId }: { deckId: string }) {
           </label>
           <div className="mt-3 space-y-2">
             {question.choices.map((choice, choiceIndex) => (
-              <div key={choiceIndex} className="border border-black p-2">
-                <label className="block text-sm">
-                  選択肢 {choiceIndex + 1}
-                  <input
-                    className="mt-1 w-full border border-black px-2 py-2"
-                    value={choice.text}
-                    onChange={(event) => updateChoiceText(questionIndex, choiceIndex, event.target.value)}
-                  />
-                </label>
-                <label className="mt-2 flex items-center gap-2 text-sm">
-                  <input
-                    type="radio"
-                    name={`correct-${questionIndex}`}
-                    checked={choice.isCorrect}
-                    onChange={() => setCorrectChoice(questionIndex, choiceIndex)}
-                  />
-                  正解にする
-                </label>
+              <div key={choiceIndex} className="border border-black p-2 flex flex-col gap-2">
+                <div>
+                  <label className="block text-sm">
+                    選択肢 {choiceIndex + 1}
+                    <input
+                      className="mt-1 w-full border border-black px-2 py-2"
+                      value={choice.text}
+                      onChange={(event) => updateChoiceText(questionIndex, choiceIndex, event.target.value)}
+                    />
+                  </label>
+                </div>
+                <div className="flex items-center gap-4">
+                  <label className="flex items-center gap-2 text-sm">
+                    <input
+                      type="radio"
+                      name={`correct-${questionIndex}`}
+                      checked={choice.isCorrect}
+                      onChange={() => setCorrectChoice(questionIndex, choiceIndex)}
+                    />
+                    正解にする
+                  </label>
+                  <button
+                    type="button"
+                    className="ml-auto border border-red-600 px-2 py-1 text-sm text-red-600 disabled:opacity-50"
+                    onClick={() => removeChoice(questionIndex, choiceIndex)}
+                    disabled={question.choices.length <= 2}
+                  >
+                    削除
+                  </button>
+                </div>
               </div>
             ))}
           </div>
-          <button
-            type="button"
-            className="mt-3 border border-black px-3 py-2 text-sm disabled:opacity-50"
-            disabled={question.choices.length >= 6}
-            onClick={() => addChoice(questionIndex)}
-          >
-            選択肢を追加
-          </button>
+          <div className="mt-3 flex items-center gap-2">
+            <button
+              type="button"
+              className="border border-black px-3 py-2 text-sm disabled:opacity-50"
+              disabled={question.choices.length >= 6}
+              onClick={() => addChoice(questionIndex)}
+            >
+              選択肢を追加
+            </button>
+            <button
+              type="button"
+              className="border border-red-600 px-3 py-2 text-sm text-red-600 disabled:opacity-50"
+              onClick={() => removeQuestion(questionIndex)}
+              disabled={questions.length <= 1}
+            >
+              問題を削除
+            </button>
+          </div>
         </div>
       ))}
 
