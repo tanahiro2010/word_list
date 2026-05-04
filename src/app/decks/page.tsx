@@ -1,11 +1,19 @@
-import Link from "next/link";
+import type { Metadata } from "next";
 import { prisma } from "@/lib/prisma";
+import Link from "next/link";
 
 export const dynamic = "force-dynamic";
 const DECKS_PER_PAGE = 10;
 
 type DeckListPageProps = {
     searchParams: Promise<{ page?: string }>;
+}
+
+export function generateMetadata(): Metadata {
+    return {
+        title: "全ての問題集",
+        description: "なんでも問題集に投稿されてる全ての問題集を閲覧しましょう"
+    }
 }
 
 export default async function DeckListPage({ searchParams }: DeckListPageProps) {

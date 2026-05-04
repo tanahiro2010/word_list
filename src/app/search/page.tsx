@@ -1,11 +1,31 @@
-import Link from "next/link";
+import type { Metadata } from "next";
 import { prisma } from "@/lib/prisma";
+import Link from "next/link";
 
 export const dynamic = "force-dynamic";
 
 type SearchPageProps = {
   searchParams: Promise<{ q?: string }>;
 };
+
+export async function generateMetadata({ searchParams }: SearchPageProps): Promise<Metadata> {
+  const params = await searchParams;
+  const keyword = params.q?.trim() ?? "";
+  const decks = await prisma.deck.count({
+    where: {
+      isPublished: true,
+      title: {
+        contains: keyword,
+        mode: "insensitive"
+      }
+    }
+  });
+
+  return {
+    title: `「${keyword}」の検索結果`,
+    description: `「${keyword}」が含まれる問題集の検索結果は${decks}件です`,
+  }
+}
 
 export default async function SearchPage({ searchParams }: SearchPageProps) {
   const params = await searchParams;
