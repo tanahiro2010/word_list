@@ -5,3 +5,4 @@ Disallow:
 # Crawl-delay: 10
 
 Sitemap: https://nandemo.tanahiro2010.com/sitemap.xml
+LLMs: https://nandemo.tanahiro2010.com/llms.txt
