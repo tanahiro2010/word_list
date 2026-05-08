@@ -23,7 +23,7 @@ export async function GET() {
           ? new Date(deck.publishedAt).toLocaleDateString("ja-JP")
           : "未定";
         const deckUrl = `${SITE_URL}/decks/${deck.id}`;
-        return `- [${deck.title}](${deckUrl}) - 問題数: ${deck._count.questions}問, 公開日: ${publishedDate}`;
+        return `- [${deck.title}](${deckUrl}) - 問題数: ${deck._count.questions}問, 公開日: ${publishedDate}, 解かれた回数: ${deck.solvedCount}回`;
       })
       .join("\n");
 
